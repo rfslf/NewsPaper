@@ -1,8 +1,10 @@
 <!--  наследуемся от шаблона default.html, который мы создавали ещё во времена flatpages -->
 {% extends 'flatpages/default.html' %}
 
+{% load custom_filters %}
+
 {% block title %}
-POSTS
+NEWS
 {% endblock title %}
 
 {% block content %}
@@ -24,13 +26,13 @@ POSTS
         {% for post in posts %}
             <tr>
                 <td>
-                    {{ post.header }}
+                    {{ post.header | censor }}
                 </td>
                 <td>
-                    {{ post.create_time|date:'d M Y' }}
+                    {{ post.create_time|date:'d-M-Y H:m' }}
                 </td>
                 <td>
-                    {{ post.body | truncatewords:4 }}
+                    {{ post.body | truncatechars:50 | censor }}
                 </td>
             </tr>
         {% endfor %}
