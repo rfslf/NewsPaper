@@ -1,0 +1,50 @@
+<!--  наследуемся от шаблона default.html, который мы создавали ещё во времена flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+NEWS
+{% endblock title %}
+
+{% block content %}
+<h1>Все новости</h1>
+<h3>Количество новостей: {{ posts|length }}</h3>
+<!-- Перед таблицей добавим форму для поиска -->
+<form method="GET">
+    {{ filter.form }}
+    <input type="submit" value="Найти">
+</form>
+<table>
+    <tr>
+        <td>
+            Дата
+        </td>
+        <td>
+            Заголовок
+        </td>
+        <td>
+            Статья
+        </td>
+        <td>
+            Автор
+        </td>
+    </tr>
+{% for post in filter.qs %}
+    <tr>
+        <td>
+            {{ post.create_time|date:'d-M-Y' }}
+        </td>
+        <td>
+            {{ post.header | censor }}
+        </td>
+        <td>
+            {{ post.body | truncatechars:50 | censor }}
+        </td>
+        <td>
+            {{ post.author }}
+        </td>
+    </tr>
+{% endfor %}
+</table>
+{% endblock content %}

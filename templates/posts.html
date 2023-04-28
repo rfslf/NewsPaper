@@ -1,4 +1,6 @@
-<!--  наследуемся от шаблона default.html, который мы создавали ещё во времена flatpages -->
+<!--  Добавьте постраничный вывод на основной странице новостей,
+чтобы на одной странице было не больше 10 новостей и были видны номера лишь ближайших страниц,
+а также возможность перехода к первой или последней странице. -->
 {% extends 'flatpages/default.html' %}
 
 {% load custom_filters %}
@@ -10,34 +12,59 @@ NEWS
 {% block content %}
 <h1>Все новости</h1>
 <h3>Количество новостей: {{ posts|length }}</h3>
-    {% if posts %}
-        <table>
-            <tr>
-                <td>
-                    Заголовок
-                </td>
-                <td>
-                    Дата
-                </td>
-                <td>
-                    Статья
-                </td>
-            </tr>
-        {% for post in posts %}
-            <tr>
-                <td>
-                    {{ post.header | censor }}
-                </td>
-                <td>
-                    {{ post.create_time|date:'d-M-Y H:m' }}
-                </td>
-                <td>
-                    {{ post.body | truncatechars:50 | censor }}
-                </td>
-            </tr>
-        {% endfor %}
-        </table>
-    {% else %}
-        <h2>Новостей нет</h2>
+{% if posts %}
+    <table>
+        <tr>
+            <td>
+                Заголовок
+            </td>
+            <td>
+                Дата
+            </td>
+            <td>
+                Статья
+            </td>
+        </tr>
+    {% for post in posts %}
+        <tr>
+            <td>
+                {{ post.header | censor }}
+            </td>
+            <td>
+                {{ post.create_time|date:'d-M-Y H:m' }}
+            </td>
+            <td>
+                {{ post.body | truncatechars:50 | censor }}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% else %}
+    <h2>Новостей нет</h2>
+{% endif %}
+
+{% if is_paginated %}
+
+    <!-- Если доступна предыдущая страница, то даём ссылку на неё и самую первую страницу -->
+    {% if page_obj.has_previous %}
+        <a href="?page=1">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}"><<<</a>
     {% endif %}
+
+    <!-- Показываем только текущую страницу и ближайшие к ней, чтобы список не тянулся и не захламлял страницу -->
+    {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+            <a>{{ num }}</a>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+    {% endfor %}
+
+    <!-- Если есть следующая страница, то даём ссылку на неё и на самую последнюю страницу -->
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">>>></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+{% endif %}
+
 {% endblock content %}
