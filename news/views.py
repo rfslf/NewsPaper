@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post
 from .filters import PostFilter
 from django.core.paginator import Paginator
+from .forms import PostForm
 
 
 class PostsList(ListView):
@@ -12,7 +13,7 @@ class PostsList(ListView):
 	context_object_name = 'posts'  # это имя списка, в котором будут лежать все объекты, его надо указать,
 	# чтобы обратиться к самому списку объектов через HTML-шаблон
 	queryset = Post.objects.order_by('-id')
-	paginate_by = 10  # поставим постраничный вывод в один элемент
+	paginate_by = 2  # поставим постраничный вывод в один элемент
 
 
 # создаём представление, в котором будут детали конкретного отдельного товара
@@ -32,3 +33,35 @@ class PostSearch(ListView):
 		context = super().get_context_data(**kwargs)
 		context['filter'] = PostFilter(self.request.GET, queryset=self.get_queryset())  # вписываем наш фильтр
 		return context
+
+
+class PostCreateView(CreateView):
+	template_name = 'post_add.html'
+	form_class = PostForm
+
+	def post(self, request, *args, **kwargs):
+		form = self.form_class(request.POST)  # создаём новую форму, забиваем в неё данные из POST-запроса
+		if form.is_valid():  # если пользователь ввёл всё правильно и нигде не накосячил, то сохраняем новый товар
+			form.save()
+		return super().get(request, *args, **kwargs)
+
+
+class PostUpdateView(UpdateView):
+	template_name = 'post_edit.html'
+	form_class = PostForm
+
+	def get_object(self, **kwargs):
+		id = self.kwargs.get('pk')
+		return Post.objects.get(pk=id)
+
+	def post(self, request, *args, **kwargs):
+		form = self.form_class(request.POST)  # создаём новую форму, забиваем в неё данные из POST-запроса
+		if form.is_valid():  # если пользователь ввёл всё правильно и нигде не накосячил, то сохраняем новый товар
+			form.save()
+		return super().get(request, *args, **kwargs)
+
+
+class PostDeleteView(DeleteView):
+	template_name = 'post_delete.html'
+	queryset = Post.objects.all()
+	success_url = '/news/'

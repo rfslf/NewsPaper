@@ -1,0 +1,15 @@
+{% extends 'flatpages/default.html' %}
+ 
+{% block title %} Delete news {% endblock title %}
+ 
+{% block content %}
+<h3>Удаление новости</h3>
+<h1>{{ post.header }}</h1>
+<h3>{{ post.create_time|date:'d-M-Y H:m' }} </h3>
+{{ post.body }}
+<form method="POST">
+    {% csrf_token %} 
+    {{ form }} <!-- Теперь нам нужна только готовая форма и кнопка -->
+    <input type="submit" value="Удалить новость">
+</form>
+{% endblock content %}

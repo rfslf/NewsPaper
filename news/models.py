@@ -12,6 +12,10 @@ class Author(models.Model):
     author = models.OneToOneField(User, on_delete=models.CASCADE)
     user_rating = models.IntegerField(default=0)
 
+    # Печатаем красиво
+    def __str__(self):
+        return f'{self.author}'
+
     def update_rating(self, value):
         self.user_rating = int(value)
         self.save()
@@ -22,6 +26,10 @@ class Author(models.Model):
 #        (в определении поля необходимо написать параметр unique = True).
 class Category(models.Model):
     category = models.TextField(unique=True)
+
+    # Печатаем красиво
+    def __str__(self):
+        return f'{self.category}'
 
 
 #        Модель Post, должна содержать в себе статьи и новости, которые создают пользователи.
