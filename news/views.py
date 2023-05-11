@@ -4,7 +4,7 @@ from .models import Post
 from .filters import PostFilter
 from django.core.paginator import Paginator
 from .forms import PostForm
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 
 class PostsList(ListView):
@@ -36,7 +36,8 @@ class PostSearch(ListView):
 		return context
 
 
-class PostCreateView(LoginRequiredMixin, CreateView):
+class PostCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+	permission_required = ('news.add_post',)
 	template_name = 'post_add.html'
 	form_class = PostForm
 
@@ -47,7 +48,8 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 		return super().get(request, *args, **kwargs)
 
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+	permission_required = ('news.change_post',)
 	template_name = 'post_edit.html'
 	form_class = PostForm
 
@@ -62,7 +64,8 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 		return super().get(request, *args, **kwargs)
 
 
-class PostDeleteView(LoginRequiredMixin, DeleteView):
+class PostDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+	permission_required = ('news.delete_post',)
 	template_name = 'post_delete.html'
 	queryset = Post.objects.all()
 	success_url = '/news/'
