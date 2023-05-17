@@ -9,4 +9,5 @@ class PostFilter(FilterSet):
 			'create_time': ['date__gt'],
 			'header': ['icontains'],
 			'author': ['exact'],
+			'category': ['exact']
 		}

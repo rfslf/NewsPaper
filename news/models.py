@@ -17,8 +17,23 @@ class Author(models.Model):
         return f'{self.author}'
 
     def update_rating(self, value):
-        self.user_rating = int(value)
+        # суммарный рейтинг каждой статьи автора * 3
+        post_rating = Post.objects.filter(author=self).values('post_rating')  # получим список объектов со словарями
+        # пройдёмся по списку, вытащим каждый словарь и у него - по ключу обратимся к значению
+        post_rating = sum(rate['post_rating'] for rate in post_rating) * 3
+
+        # суммарный рейтинг всех комментариев автора
+        comments_rating = Comment.objects.filter(user=self.author).values('comment_rating')  # получим список объектов со словарями
+        comments_rating = sum(rate['comment_rating'] for rate in comments_rating)
+
+        # суммарный рейтинг всех комментариев к статьям автора
+        all_comments_for_post = Post.objects.filter(author = self)
+        news_comments_rating = Comment.objects.filter(post__in=all_comments_for_post).values('comments_rating')
+        news_comments_rating = sum(rate['comment_rating'] for rate in news_comments_rating)
+
+        self.rating = sum([post_rating, comments_rating, news_comments_rating])
         self.save()
+
 
 
 #        Модель Category. Категории новостей/статей — темы, которые они отражают (спорт, политика, образование и т. д.).
@@ -26,6 +41,7 @@ class Author(models.Model):
 #        (в определении поля необходимо написать параметр unique = True).
 class Category(models.Model):
     category = models.TextField(unique=True)
+    subscriber = models.ManyToManyField(User, through='SubscriberCategory')
 
     # Печатаем красиво
     def __str__(self):
@@ -68,12 +84,29 @@ class Post(models.Model):
     def preview(self):
         return self.body[:124] + '...'
 
+    def get_categories(self):
+        result = []
+        for category in self.category.all():
+            result.append(category)
+        return result
+
+    def get_comments(self):
+        result = []
+        for comment in Comment.objects.filter(post=self):
+            result.append(comment)
+        return result
+
 
 #        Модель PostCategory. Промежуточная модель для связи «многие ко многим»:
 #           связь «один ко многим» с моделью Post;
 #           связь «один ко многим» с моделью Category.
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+
+class SubscriberCategory(models.Model):
+    subscriber = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
 

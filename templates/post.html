@@ -11,4 +11,41 @@ NEWS
 <h1>{{ post.header | censor }}</h1>
 <h3>{{ post.create_time|date:'d-M-Y H:m' }} </h3>
 {{ post.body | censor }}
+<br>
+<div> <h3>Категории:</h3>
+    {% for cat in post.get_categories %}
+    <p>{{ cat.category }}</p>
+        <!-- если пользователь авторизован, то показываем форму подписки -->
+        {% if user.is_authenticated %}
+        <form action="/news/subscribe/" method="POST">
+            {% csrf_token %}
+            <!-- передаём через скрытое поле id категории -->
+            <input type="hidden" name="cat_id" value="{{ cat.id }}">
+            <!-- если пользователя нет в категориях, то отображаем кнопку Подписаться-->
+            {% if user not in cat.subscriber.all %}
+                <input type="submit" name="subscribe_button" value="Подписаться">
+            {% else %}
+                <!-- если пользователь есть в категориях, то отображаем кнопку Отписаться-->
+                <input type="submit" name="unsubscribe_button" value="Отписаться">
+            {% endif %}
+        </form>
+        {% endif %}
+    {% endfor %} </div>
+{% if post.get_comments %}
+<h3>Комментарии:</h3>
+<table>
+{% for comment in post.get_comments %}
+    <tr>
+        <td>
+            <p>{{ comment.comment }}</p>
+            <p><i>{{ comment.comment_time }}</i></p>
+            <p><b>{{ comment.user.username }}</b></p>
+        </td>
+    </tr>
+{% endfor %}
+
+</table>
+    {% else %}
+    <p>Комментариев нет</p>
+{% endif %}
 {% endblock content %}
