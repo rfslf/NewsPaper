@@ -35,7 +35,6 @@ class Author(models.Model):
         self.save()
 
 
-
 #        Модель Category. Категории новостей/статей — темы, которые они отражают (спорт, политика, образование и т. д.).
 #        Имеет единственное поле: название категории. Поле должно быть уникальным
 #        (в определении поля необходимо написать параметр unique = True).
@@ -96,6 +95,9 @@ class Post(models.Model):
             result.append(comment)
         return result
 
+    def get_absolute_url(self):
+        return f'/news/{self.id}'
+
 
 #        Модель PostCategory. Промежуточная модель для связи «многие ко многим»:
 #           связь «один ко многим» с моделью Post;
@@ -103,6 +105,9 @@ class Post(models.Model):
 class PostCategory(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.post} in {self.category}'
 
 
 class SubscriberCategory(models.Model):

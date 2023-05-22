@@ -60,27 +60,6 @@ class PostCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 			# )
 			form.save()
 
-		subject = request.POST['header']
-		message = request.POST['body']
-		username = User.objects.get(id=request.POST['author'])
-
-		html_content = render_to_string(
-			'email.html',
-			{
-				'subject': subject,
-				'message': message,
-				'username': username,
-			}
-		)
-		msg = EmailMultiAlternatives(
-			subject=f'Новая статья на сайте NewsPapers',
-			body=f'Содержание: { message }',  # это то же, что и message
-			from_email='avdonin@unn.ru',
-			to=['rocknroll@mail.ru'],
-		)
-		msg.attach_alternative(html_content, "text/html")  # добавляем html
-		msg.send()  # отсылаем
-
 		return super().get(request, *args, **kwargs)
 
 
