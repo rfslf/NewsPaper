@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.core.cache import cache # импортируем наш кэш
 
 
 class PostsList(ListView):
@@ -28,6 +29,16 @@ class PostDetail(DetailView):
 	template_name = 'post.html'
 	context_object_name = 'post'
 	queryset = Post.objects.all()
+
+	def get_object(self, *args, **kwargs):  # переопределяем метод получения объекта, как ни странно
+		# Кэш очень похож на словарь, и метод get действует также. Он забирает значение по ключу,
+		# если его нет, то забирает None.
+		obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+		# если объекта нет в кэше, то получаем его и записываем в кэш
+		if not obj:
+			obj = super().get_object(queryset=self.queryset)
+			cache.set(f'post-{self.kwargs["pk"]}', obj)
+		return obj
 
 
 class PostSearch(ListView):
