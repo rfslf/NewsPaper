@@ -16,18 +16,19 @@ class Author(models.Model):
     def __str__(self):
         return f'{self.author}'
 
-    def update_rating(self, value):
+    def update_rating(self):
         # суммарный рейтинг каждой статьи автора * 3
         post_rating = Post.objects.filter(author=self).values('post_rating')  # получим список объектов со словарями
         # пройдёмся по списку, вытащим каждый словарь и у него - по ключу обратимся к значению
         post_rating = sum(rate['post_rating'] for rate in post_rating) * 3
 
         # суммарный рейтинг всех комментариев автора
-        comments_rating = Comment.objects.filter(user=self.author).values('comment_rating')  # получим список объектов со словарями
+        # получим список объектов со словарями
+        comments_rating = Comment.objects.filter(user=self.author).values('comment_rating')
         comments_rating = sum(rate['comment_rating'] for rate in comments_rating)
 
         # суммарный рейтинг всех комментариев к статьям автора
-        all_comments_for_post = Post.objects.filter(author = self)
+        all_comments_for_post = Post.objects.filter(author=self)
         news_comments_rating = Comment.objects.filter(post__in=all_comments_for_post).values('comments_rating')
         news_comments_rating = sum(rate['comment_rating'] for rate in news_comments_rating)
 
@@ -96,7 +97,7 @@ class Post(models.Model):
         return result
 
     def get_absolute_url(self):
-        return f'/news/{self.id}'
+        return f'/news/{self.pk}'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # сначала вызываем метод родителя, чтобы объект сохранился

@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, m2m_changed  # Нужен для ManyToMany
+from django.db.models.signals import m2m_changed  # Нужен для ManyToMany
 from django.dispatch import receiver  # импортируем нужный декоратор
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -12,7 +12,7 @@ def notify_subscribers(sender, instance, **kwargs):
 	header = instance.header
 	message = instance.body
 	post = instance
-	subscribers_email_list = []
+	# subscribers_email_list = []
 	if kwargs['action'] == "post_add":
 		categories = instance.category.all()
 		for category in categories:
@@ -28,6 +28,6 @@ def notify_subscribers(sender, instance, **kwargs):
 					to=[subscriber.email],
 				)
 				msg.attach_alternative(html_content, "text/html")  # добавляем html
-				print(html_content) # проверка содержимого отправки
+				print(html_content)  # проверка содержимого отправки
 			# 	нужно отключить для реальной отправки
 			#   msg.send()

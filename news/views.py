@@ -10,7 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from django.core.cache import cache # импортируем наш кэш
+from django.core.cache import cache  # импортируем наш кэш
 
 
 class PostsList(ListView):
